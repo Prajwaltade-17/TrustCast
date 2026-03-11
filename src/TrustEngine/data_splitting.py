@@ -1,6 +1,6 @@
 import pandas as pd  # type: ignore
 import sys
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split #type:ignore
 from src.exception.exception_handle import CustomException
 from src.logger.logging_handle import logger
 

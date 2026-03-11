@@ -11,7 +11,7 @@ from src.TrustEngine.feature_eng import FeatureEngineering
 from src.TrustEngine.trust_engine import TrustEngine
 from src.TrustEngine.model_building import AttentionLayer
 from src.TrustEngine.data_preprocessing import DataPreprocessing
-
+uploaded_df = None
 app = FastAPI()
 
 app.add_middleware(
@@ -130,6 +130,8 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("TrustCastLogger")
+
+
 @app.get("/logs")
 def get_logs():
     all_logs = []
@@ -173,6 +175,7 @@ def get_logs():
 
 @app.post("/api/trust-score")
 def get_trust_score(data: dict):
+
     global uploaded_df
 
     try:
@@ -196,6 +199,7 @@ def get_trust_score(data: dict):
                 content={"error": "srcip column not found"}
             )
 
+        # Filter rows for selected device
         device_df = uploaded_df[uploaded_df["srcip"] == srcip]
 
         if device_df.empty:
@@ -208,32 +212,98 @@ def get_trust_score(data: dict):
 
         df = device_df.copy()
 
+        # Save attack labels BEFORE preprocessing
+        attack_labels = df["attack_cat"] if "attack_cat" in df.columns else None
+
+        # Run pipeline
+        df = preprocessor.preprocess(df)
+        df = feature_engineer.apply(df)
+        df = trust_engine.apply(df)
+
+        # Calculate trust score
+        trust_score = round(float(df["Trust_Score"].mean()) * 100, 2)
+
+        # Build timeline (last 20 points)
+        timeline_values = (df["Trust_Score"] * 100).round(2).tail(20)
+
+        timeline = {
+            "labels": list(range(len(timeline_values))),
+            "values": timeline_values.tolist()
+        }
+
+        # Detect anomalies from attack_cat
+        anomalies = []
+
+        if attack_labels is not None:
+            attack_rows = attack_labels[attack_labels != "Normal"]
+
+            for i, attack in attack_rows.head(5).items():
+                anomalies.append({
+                    "index": int(i),
+                    "attack_type": str(attack)
+                })
+
+        return {
+            "srcip": srcip,
+            "trust_score": trust_score,
+            "timeline": timeline,
+            "anomalies": anomalies
+        }
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+@app.get("/api/devices")
+def get_devices():
+
+    global uploaded_df
+
+    if uploaded_df is None:
+        return []
+
+    if "srcip" not in uploaded_df.columns:
+        return []
+
+    devices = []
+    device_ips = uploaded_df["srcip"].unique()
+
+    for i, ip in enumerate(device_ips):
+
+        device_df = uploaded_df[uploaded_df["srcip"] == ip]
+
+        df = device_df.copy()
+
         df = preprocessor.preprocess(df)
         df = feature_engineer.apply(df)
         df = trust_engine.apply(df)
 
         trust_score = round(float(df["Trust_Score"].mean()) * 100, 2)
 
-        # 🔥 Build timeline
-        timeline_df = (
-            df.groupby(df.index // 10)["Trust_Score"]
-            .mean()
-            .reset_index()
-        )
+        if trust_score > 80:
+            status = "Healthy"
+        elif trust_score > 50:
+            status = "Low Trust"
+        else:
+            status = "Anomaly"
 
-        timeline = {
-            "labels": timeline_df.index.astype(str).tolist(),
-            "values": (timeline_df["Trust_Score"] * 100).round(2).tolist()
-        }
+        devices.append({
+            "id": f"D-{i+1:03}",
+            "ip": ip,
+            "status": status,
+            "trust": trust_score,
+            "lastSeen": "Just now"
+        })
 
-        return {
-            "srcip": srcip,
-            "trust_score": trust_score,
-            "timeline": timeline,
-            "anomalies": []
-        }
+    return devices
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+
+

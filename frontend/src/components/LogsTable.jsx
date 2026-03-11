@@ -9,10 +9,10 @@ const LogsTable = () => {
 
   const logsPerPage = 8;
 
-  // 🔥 Fetch logs from backend
+  // Fetch logs from backend
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/logs") // change to your backend URL
+      .get("http://127.0.0.1:8000/logs")
       .then((res) => {
         setLogs(res.data);
         setFilteredLogs(res.data);
@@ -20,20 +20,18 @@ const LogsTable = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  // 🔥 Filter logic
+  // Filter logic
   useEffect(() => {
     if (activeFilter === "All") {
       setFilteredLogs(logs);
     } else {
-      const filtered = logs.filter(
-        (log) => log.level === activeFilter
-      );
+      const filtered = logs.filter((log) => log.level === activeFilter);
       setFilteredLogs(filtered);
     }
     setPage(1);
   }, [activeFilter, logs]);
 
-  // 🔥 Pagination logic
+  // Pagination logic
   const indexOfLast = page * logsPerPage;
   const indexOfFirst = indexOfLast - logsPerPage;
   const currentLogs = filteredLogs.slice(indexOfFirst, indexOfLast);
@@ -52,7 +50,7 @@ const LogsTable = () => {
           </h4>
         </div>
 
-        {/* 🔥 Filters */}
+        {/* Filters */}
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
           {["All", "Info", "Warning", "Critical"].map((filter) => (
             <button
@@ -68,42 +66,44 @@ const LogsTable = () => {
             </button>
           ))}
 
+          {/* Export Button */}
           <button
-  onClick={() => {
-    const exportData = {
-      system: "TrustCast AI Engine",
-      exported_at: new Date().toISOString(),
-      total_logs: filteredLogs.length,
-      logs: filteredLogs.map((log) => ({
-        timestamp: log.time,
-        level: log.level,
-        actor: log.actor,
-        action: log.action,
-        details: log.details,
-      })),
-    };
+            onClick={() => {
+              const exportData = {
+                system: "TrustCast AI Engine",
+                exported_at: new Date().toISOString(),
+                total_logs: filteredLogs.length,
+                logs: filteredLogs.map((log) => ({
+                  timestamp: log.time,
+                  level: log.level,
+                  actor: log.actor,
+                  action: log.action,
+                  details: log.details,
+                })),
+              };
 
-    const blob = new Blob(
-      [JSON.stringify(exportData, null, 2)],
-      { type: "application/json" }
-    );
+              const blob = new Blob(
+                [JSON.stringify(exportData, null, 2)],
+                { type: "application/json" }
+              );
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `trustcast_logs_${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }}
-  className="rounded-full border border-slate-200 dark:border-slate-700 px-3 py-1 text-slate-600 dark:text-slate-300"
->
-  Export
-</button>
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `trustcast_logs_${Date.now()}.json`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }}
+            className="rounded-full border border-slate-200 dark:border-slate-700 px-3 py-1 text-slate-600 dark:text-slate-300"
+          >
+            Export
+          </button>
         </div>
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-100 dark:border-slate-700 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -115,43 +115,41 @@ const LogsTable = () => {
             </tr>
           </thead>
 
-       <tbody>
-  {currentLogs.length === 0 ? (
-    <tr>
-      <td
-        colSpan="4"
-        className="py-6 text-center text-slate-400 dark:text-slate-500"
-      >
-        No logs available
-      </td>
-    </tr>
-  ) : (
-    currentLogs.map((log, index) => (
-      <tr
-        key={
-          log.id ??
-          `${log.time}-${log.actor}-${log.action}-${index}`
-        }
-        className="border-b border-slate-50 dark:border-slate-800 font-mono text-xs text-slate-600 dark:text-slate-300"
-      >
-        <td className="py-3">{log.time}</td>
-        <td className="py-3">{log.actor}</td>
-        <td className="py-3">{log.action}</td>
-        <td className="py-3 text-slate-500 dark:text-slate-400">
-          {log.details}
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
+          <tbody>
+            {currentLogs.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="py-6 text-center text-slate-400 dark:text-slate-500"
+                >
+                  No logs available
+                </td>
+              </tr>
+            ) : (
+              currentLogs.map((log, index) => (
+                <tr
+                  key={`${log.time}-${log.actor}-${log.action}-${index}`}
+                  className="border-b border-slate-50 dark:border-slate-800 font-mono text-xs text-slate-600 dark:text-slate-300"
+                >
+                  <td className="py-3">{log.time}</td>
+                  <td className="py-3">{log.actor}</td>
+                  <td className="py-3">{log.action}</td>
+                  <td className="py-3 text-slate-500 dark:text-slate-400">
+                    {log.details}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
         </table>
       </div>
 
-      {/* 🔥 Pagination */}
+      {/* Pagination */}
       <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
         <span>
           Page {page} of {totalPages || 1}
         </span>
+
         <div className="space-x-2">
           <button
             disabled={page === 1}
@@ -160,8 +158,9 @@ const LogsTable = () => {
           >
             Prev
           </button>
+
           <button
-            disabled={page === totalPages}
+            disabled={page === totalPages || totalPages === 0}
             onClick={() => setPage((prev) => prev + 1)}
             className="rounded-full border border-slate-200 dark:border-slate-700 px-3 py-1 disabled:opacity-40"
           >

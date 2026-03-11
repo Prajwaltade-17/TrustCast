@@ -13,8 +13,9 @@ import {
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  // { path: '/devices', label: 'Devices', icon: Activity },
-  { path: '/device-details', label: 'Device Details', icon: Cpu },
+  { path: '/devices', label: 'Devices', icon: Activity },
+  // { path: '', label: 'Details', icon: Activity },
+  { path: '/devices-details', label: 'Device Details', icon: Cpu },
   { path: '/dataset', label: 'Dataset Upload', icon: CloudUpload },
   { path: '/api', label: 'API Playground', icon: KeyRound },
   { path: '/logs', label: 'Logs & Audit', icon: FileText },

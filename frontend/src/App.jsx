@@ -6,8 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import DeviceDetailsContainerWrapper from "./components/DeviceDetailsContainerWrapper";
-
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
@@ -20,7 +18,8 @@ import ApiPlayground from "./components/ApiPlayground";
 import SettingsPanel from "./components/SettingsPanel";
 import LogsTable from "./components/LogsTable";
 import HelpDocs from "./components/HelpDocs";
-
+import DeviceDetails from "./components/DeviceDetails";
+import DevicesPage from "./components/DevicePage";
 import { ThemeProvider } from "./components/ThemeContext";
 
 const App = () => {
@@ -34,7 +33,7 @@ const App = () => {
   return (
     <Router>
       {!isAuthenticated ? (
-        // 🔐 Public Routes
+        /* ---------- PUBLIC ROUTES ---------- */
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
@@ -45,23 +44,16 @@ const App = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/upload" element={<FileUpload />} />
-          <Route path="/devices" element={<div>Devices Page</div>} />
-
-          {/* Device Details Route */}
-          <Route
-            path="/device-details/:ip"
-            element={<DeviceDetailsContainerWrapper />}
-          />
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       ) : (
-        // 🔐 Authenticated Layout
+        /* ---------- AUTHENTICATED DASHBOARD ---------- */
         <ThemeProvider>
           <div
-            className="flex min-h-screen 
-                       bg-white text-slate-900 
-                       dark:bg-slate-950 dark:text-white 
+            className="flex min-h-screen
+                       bg-white text-slate-900
+                       dark:bg-slate-950 dark:text-white
                        transition-colors duration-300"
           >
             <Sidebar onLogout={handleLogout} />
@@ -71,18 +63,21 @@ const App = () => {
 
               <main className="flex-1 px-6 py-8">
                 <Routes>
+                  {/* Dashboard Home */}
                   <Route
                     path="/dashboard"
                     element={<div>Dashboard Content</div>}
                   />
 
-                  <Route path="/devices" element={<div>Devices Page</div>} />
-
-                  {/* Device Details Route */}
+                  {/* Device Details Page */}
+                  <Route path="/devices" element={<DevicesPage />} />
+                  <Route path="/device-details" element={<DeviceDetails />} />
                   <Route
                     path="/device-details/:ip"
-                    element={<DeviceDetailsContainerWrapper />}
+                    element={<DeviceDetails />}
                   />
+
+                  {/* <Route path="/devices" element={<div>Devices Page</div>} /> */}
 
                   <Route
                     path="/dataset"
