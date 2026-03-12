@@ -100,25 +100,27 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative z-10 max-w-7xl mx-auto px-10 pt-32 pb-20 text-white">
+      <div className="relative z-10 max-w-7xl mx-auto px-10 pt-16 pb-20 text-white">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
 
           {/* Left Content */}
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-red-600 font-semibold mb-4">
-              IoT Security Platform
-            </p>
+  Network Security Platform
+</p>
 
             <h1 className="text-6xl font-black leading-tight mb-6">
-              Trust Your Devices.
-              <br />
-              <span className="text-red-600">Secure Your Network.</span>
-            </h1>
+  Detect Cyber Threats.
+  <br />
+  <span className="text-red-600">Secure Your Network.</span>
+</h1>
 
             <p className="text-gray-300 text-lg max-w-lg mb-8">
-              Advanced ML-driven trust scoring system for IoT environments.
-              Detect anomalies in real-time and secure your infrastructure with enterprise-grade monitoring.
-            </p>
+  TrustCast is a network security platform designed to analyze
+  network traffic logs and detect cyber attacks in real time. Using machine
+  learning models and behavioral analysis, the system identifies anomalies,
+  classifies threats, and assigns trust scores to devices within a network.
+</p>
 
             <div className="flex gap-4">
               <button
@@ -141,10 +143,22 @@ const LandingPage = () => {
           {/* Feature Cards */}
           <div className="grid gap-6">
             {[
-              { icon: Activity, title: 'Real-Time Monitoring', desc: 'Continuous trust scoring & anomaly detection.' },
-              { icon: Database, title: 'ML-Powered Insights', desc: 'Deep behavioral learning and pattern analysis.' },
-              { icon: Lock, title: 'Enterprise Security', desc: 'Audit logs, role control & automatic quarantine.' }
-            ].map((feature, index) => (
+  {
+    icon: Activity,
+    title: 'Real-Time Traffic Analysis',
+    desc: 'Monitor network traffic and detect abnormal activities instantly.'
+  },
+  {
+    icon: Database,
+    title: 'Machine Learning Detection',
+    desc: 'Identify cyber attacks using trained ML models on network datasets.'
+  },
+  {
+    icon: Lock,
+    title: 'Threat Classification',
+    desc: 'Analyze traffic behavior and classify different types of network attacks.'
+  }
+].map((feature, index) => (
               <div
                 key={index}
                 className="rounded-2xl border border-gray-800 bg-gray-900/70 backdrop-blur-sm p-6 hover:border-red-600/50 hover:scale-105 transition-all"
@@ -171,7 +185,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-gray-900 bg-black/90 py-8 text-center text-gray-500">
-        © 2025 TrustCast. All rights reserved.
+        © 2026 TrustCast. All rights reserved.
       </footer>
     </div>
   );

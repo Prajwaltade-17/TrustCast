@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Shield, ArrowLeft, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = ({ onNavigate, onRegister }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -51,7 +53,7 @@ const RegisterPage = ({ onNavigate, onRegister }) => {
 
       <div className="relative z-10 w-full max-w-5xl">
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -70,9 +72,9 @@ const RegisterPage = ({ onNavigate, onRegister }) => {
                 <p className="text-lg font-semibold">Join the Platform</p>
               </div>
             </div>
-            <h2 className="text-3xl font-semibold mb-4">Start securing your IoT network today</h2>
+            <h2 className="text-3xl font-semibold mb-4">Start securing your network today</h2>
             <p className="text-sm text-white/90 leading-relaxed mb-6">
-              Get access to real-time trust scoring, anomaly detection, and ML-powered security insights for your IoT infrastructure.
+              Get access to real-time trust scoring, anomaly detection, and ML-powered security insights for network infrastructure.
             </p>
             <div className="space-y-3">
               {[

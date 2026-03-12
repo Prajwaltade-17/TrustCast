@@ -24,16 +24,16 @@ const HelpDocs = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+   <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-8 transition-colors">
+      <div className="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+          <h2 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <BookOpen className="text-indigo-600" />
             Help & Documentation
           </h2>
-          <p className="text-slate-500 mt-2">
+          <p className="text-slate-500 mt-2 dark:text-slate-400">
             Learn how to use TrustCast effectively.
           </p>
         </div>
@@ -71,7 +71,7 @@ const HelpDocs = () => {
             {faqs.map((item, index) => (
               <div
                 key={index}
-                className="border rounded-xl p-4 hover:shadow-md transition"
+                className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition"
               >
                 <div
                   onClick={() =>
@@ -79,7 +79,7 @@ const HelpDocs = () => {
                   }
                   className="flex justify-between items-center cursor-pointer"
                 >
-                  <h4 className="font-medium text-slate-700">
+                  <h4 className="font-medium text-slate-700 dark:text-slate-200">
                     {item.question}
                   </h4>
                   <ChevronDown
@@ -90,7 +90,7 @@ const HelpDocs = () => {
                 </div>
 
                 {openIndex === index && (
-                  <p className="mt-3 text-slate-500">{item.answer}</p>
+                  <p className="mt-3 text-slate-500 dark:text-slate-400">{item.answer}</p>
                 )}
               </div>
             ))}

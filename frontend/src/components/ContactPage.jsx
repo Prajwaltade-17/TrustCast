@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Shield, Mail, MapPin, Phone, Send } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 const ContactPage = ({ onNavigate }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,17 +32,17 @@ const ContactPage = ({ onNavigate }) => {
           </div>
           <span className="text-lg font-semibold text-white">TrustCast</span>
         </div>
-        <button
+        {/* <button
           onClick={() => onNavigate('home')}
           className="rounded-xl border border-red-900/40 px-4 py-2 text-sm font-semibold text-gray-200 hover:bg-red-600/20 transition-colors"
         >
           Back to Home
-        </button>
+        </button> */}
       </nav>
 
       <div className="relative z-10 max-w-5xl mx-auto px-8 py-16">
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -84,8 +85,9 @@ const ContactPage = ({ onNavigate }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-white mb-1">Office</h3>
-                  <p className="text-sm text-gray-300">123 Security Boulevard</p>
-                  <p className="text-sm text-gray-300">San Francisco, CA 94105</p>
+                  {/* <p className="text-sm text-gray-300">123 Security Boulevard</p>
+                  <p className="text-sm text-gray-300">San Francisco, CA 94105</p> */}
+                  <p className="text-sm text-gray-300">Raw Address</p>
                 </div>
               </div>
             </div>

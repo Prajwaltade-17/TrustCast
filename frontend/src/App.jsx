@@ -21,7 +21,7 @@ import HelpDocs from "./components/HelpDocs";
 import DeviceDetails from "./components/DeviceDetails";
 import DevicesPage from "./components/DevicePage";
 import { ThemeProvider } from "./components/ThemeContext";
-
+import Dashboard from "./components/Dashboard";
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [uploadedData, setUploadedData] = useState([]);
@@ -50,12 +50,7 @@ const App = () => {
       ) : (
         /* ---------- AUTHENTICATED DASHBOARD ---------- */
         <ThemeProvider>
-          <div
-            className="flex min-h-screen
-                       bg-white text-slate-900
-                       dark:bg-slate-950 dark:text-white
-                       transition-colors duration-300"
-          >
+          <div className="flex min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-white transition-colors duration-300">
             <Sidebar onLogout={handleLogout} />
 
             <div className="flex-1 flex flex-col">
@@ -65,9 +60,9 @@ const App = () => {
                 <Routes>
                   {/* Dashboard Home */}
                   <Route
-                    path="/dashboard"
-                    element={<div>Dashboard Content</div>}
-                  />
+  path="/dashboard"
+  element={<Dashboard />}
+/>
 
                   {/* Device Details Page */}
                   <Route path="/devices" element={<DevicesPage />} />

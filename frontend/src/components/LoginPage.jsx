@@ -46,10 +46,10 @@ const LoginPage = ({ onNavigate, onLogin }) => {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-white/60">TrustCast</p>
-                <p className="text-lg font-semibold">IoT Security Platform</p>
+                <p className="text-lg font-semibold">Network Security Platform</p>
               </div>
             </div>
-            <h2 className="text-3xl font-semibold mb-4">Secure access for IoT trust analysts</h2>
+            <h2 className="text-3xl font-semibold mb-4">Secure access for trust analysts</h2>
             <p className="text-sm text-white/70 leading-relaxed mb-6">
               Multi-factor authentication, device attestation, and risk-aware login flows keep adversaries out of your network.
             </p>

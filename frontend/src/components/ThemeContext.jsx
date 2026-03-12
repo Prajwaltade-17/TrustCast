@@ -1,27 +1,31 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const ThemeContext = createContext()
+const ThemeContext = createContext();
 
-export function ThemeProvider({children}){
-    const [highContrast, setHighContrast] = useState(false);
+export function ThemeProvider({ children }) {
 
-    useEffect(() =>{
-        const root = document.documentElement;
-        if(highContrast){
-            root.classList.add("dark");
-            localStorage.setItem("theme", "dark");
-        }else{
-            root.classList.remove("dark");
-            localStorage.setItem("theme", "light");
-        }
+  const [highContrast, setHighContrast] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
 
-    }, [highContrast]
-);
+  useEffect(() => {
+    const root = document.documentElement;
 
-    return (
-        <ThemeContext.Provider value={{highContrast, setHighContrast}}>
-            {children}
-        </ThemeContext.Provider>
-    )
+    if (highContrast) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+
+  }, [highContrast]);
+
+  return (
+    <ThemeContext.Provider value={{ highContrast, setHighContrast }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
+
 export const useTheme = () => useContext(ThemeContext);

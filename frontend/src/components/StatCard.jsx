@@ -34,7 +34,7 @@ const StatCard = ({
             )}
           </div>
         </div>
-        <div className="rounded-xl bg-slate-900/90 p-3 text-white shadow-inner">
+        <div className="rounded-xl bg-white dark:bg-slate-900/90 p-3 text-slate-900 dark:text-white shadow-inner">
           <Icon className="h-5 w-5" />
         </div>
       </div>

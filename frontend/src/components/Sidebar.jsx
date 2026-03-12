@@ -15,7 +15,7 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/devices', label: 'Devices', icon: Activity },
   // { path: '', label: 'Details', icon: Activity },
-  { path: '/devices-details', label: 'Device Details', icon: Cpu },
+  // { path: '/devices-details', label: 'Device Details', icon: Cpu },
   { path: '/dataset', label: 'Dataset Upload', icon: CloudUpload },
   { path: '/api', label: 'API Playground', icon: KeyRound },
   { path: '/logs', label: 'Logs & Audit', icon: FileText },
@@ -24,7 +24,7 @@ const navItems = [
 
 const Sidebar = () => {
   return (
-    <aside className="hidden min-h-screen w-64 flex-col border-r border-slate-200 bg-white/95 px-6 py-8 lg:flex">
+    <aside className="hidden min-h-screen w-64 flex-col border-r border-slate-200 bg-white dark:bg-slate-950/95 px-6 py-8 lg:flex">
       
       {/* Logo Section */}
       <div className="mb-10 flex items-center gap-3">
@@ -35,9 +35,9 @@ const Sidebar = () => {
           <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
             TrustCast
           </p>
-          <p className="text-lg font-semibold text-slate-900">
-            IoT Security
-          </p>
+         <p className="text-sm font-semibold text-slate-900 dark:text-white">
+  Security Platform
+</p>
         </div>
       </div>
 
