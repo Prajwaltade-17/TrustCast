@@ -1,3 +1,4 @@
+=======
 # Node / React
 node_modules/
 dist/
@@ -48,3 +49,5 @@ Thumbs.db
 
 # Other
 .zen/
+=======
+
