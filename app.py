@@ -11,6 +11,7 @@ from src.TrustEngine.feature_eng import FeatureEngineering
 from src.TrustEngine.trust_engine import TrustEngine
 from src.TrustEngine.model_building import AttentionLayer
 from src.TrustEngine.data_preprocessing import DataPreprocessing
+
 uploaded_df = None
 app = FastAPI()
 
@@ -28,6 +29,7 @@ app.add_middleware(
 MODEL_PATH = "D:\\AI\\TrustCast\\models\\trustcast_bigru_attention.h5"
 SCALER_PATH = "D:\\AI\\TrustCast\\models\\scaler.pkl"
 FEATURE_PATH = "D:\\AI\\TrustCast\\models\\feature_columns.pkl"
+
 
 model = tf.keras.models.load_model(
     MODEL_PATH,
