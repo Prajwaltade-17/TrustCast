@@ -275,6 +275,281 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error("ETL process failed.")
         raise CustomException(e, sys)
+import sys
+import numpy as np # type: ignore
+import pandas as pd # type: ignore
+from sklearn.preprocessing import OneHotEncoder #type: ignore
+from src.exception.exception_handle import CustomException
+from src.logger.logging_handle import logger
+
+class DataPreprocessing:
+    def __init__(self):
+        self.ohe = OneHotEncoder(
+        handle_unknown="ignore",
+        sparse_output=False   
+        )
+
+    
+    # Utility: Port Conversion
+    @staticmethod
+    #static method : does NOT need self.x does not ned to initialization of an instance
+    def convert_port_to_int(x):
+        try:
+            if pd.isna(x):
+                return -1
+            if isinstance(x,str):
+                x = x.strip()
+                if x.startswith(("0x","0X")):
+                    return int(x,16)
+                if x.isdigit():
+                    return int(x)
+                return -1
+            return int(x)
+        except Exception:
+            return -1
+        
+     # Step 1: Missing Value Handling
+
+    def handle_missing(self, df:pd.DataFrame) ->pd.DataFrame:
+        try:
+            logger.info("handling Missing values...")
+            if "attack_cat" in df.columns:
+                df["attack_cat"] = df["attack_cat"].fillna("Normal")
+            logger.info("Missing value handling Completed. ")
+            return df
+        
+        except Exception as e:
+            logger.error("Error in  handle_missing() ")
+            raise CustomException(e,sys)
+
+    # Step 2: Port Processing( converting ports different formate into interger using convert_port_to_int() function)
+    def process_ports(self, df: pd.DataFrame) -> pd.DataFrame:
+        try:
+            logger.info("Processing port column...")
+
+            df["sport"] = df["sport"].apply(self.convert_port_to_int)
+            df["dsport"] = df["dsport"].apply(self.convert_port_to_int)
+
+            logger.info("Port Conversion completed")
+
+            return df
+        except Exception as e:
+            logger.error("Error in process_ports()")
+            raise CustomException(e,sys)
+        
+        # Step 3: Service Cleaning
+    def clean_service(self, df:pd.DataFrame)->pd.DataFrame:
+        try:
+            logger.info("Cleaning service column...")
+            df["service"] = df["service"].replace("-", "unknown_service")
+            logger.info("Service cleaning completed.")
+
+            return df
+        except Exception as e:
+            logger.error("Error in clean_service() ")
+            raise CustomException(e,sys)
+
+        # Step 4: Feature Engineering + Encoding
+
+    def encode_categorical(self, df: pd.DataFrame) -> pd.DataFrame:
+        try:
+            logger.info("Starting categorical feature engineering...")
+
+            # --- clean column names ---
+            df.columns = df.columns.str.strip()
+
+            # =========================
+            # Service binary flag
+            # =========================
+            df["service"] = df["service"].fillna("-").astype(str)
+
+            df["is_service_unknown"] = (
+                df["service"].isin(["unknown_service", "-", "unknown"])
+            ).astype(int)
+
+            # =========================
+            # Port bucketing
+            # =========================
+            def bucket(port):
+                if pd.isna(port) or port == -1:
+                    return "unknown"
+                elif port <= 1023:
+                    return "well_known"
+                elif port <= 49151:
+                    return "registered"
+                else:
+                    return "dynamic"
+
+            df["sport_bucket"] = df["sport"].apply(bucket)
+            df["dsport_bucket"] = df["dsport"].apply(bucket)
+
+            # =========================
+            # Small categorical encoding
+            # =========================
+            small_cat_features = [
+                "state",
+                "sport_bucket",
+                "dsport_bucket",
+                "service",
+            ]
+
+            existing_cols = [c for c in small_cat_features if c in df.columns]
+            logger.info(f"OHE columns: {existing_cols}")
+
+            # 🔥 CRITICAL SAFETY
+            df[existing_cols] = df[existing_cols].fillna("Unknown").astype(str)
+
+            # --- ensure encoder is dense ---
+            encoded = self.ohe.fit_transform(df[existing_cols])
+
+            # --- shape check ---
+            assert encoded.shape[0] == df.shape[0], \
+                "Row mismatch between df and encoded output"
+
+            encoded_df = pd.DataFrame(
+                encoded,
+                columns=self.ohe.get_feature_names_out(existing_cols),
+                index=df.index,
+            )
+
+            # ✅ CORRECT CONCAT (axis=1 important)
+            cols_to_drop = [col for col in existing_cols if col != "state"]
+
+            df = pd.concat(
+                [df.drop(columns=cols_to_drop, errors="ignore"), encoded_df],
+                axis=1
+            )
+           
+            # =========================
+            # Protocol grouping
+            # =========================
+            df["proto_group"] = df["proto"].apply(
+                lambda p: p if p in ("tcp", "udp", "icmp") else "other"
+            )
+
+            proto_domain = pd.get_dummies(
+                df["proto_group"],
+                prefix="proto",
+                dtype=int,
+            )
+
+            df = pd.concat([df, proto_domain], axis=1)
+
+            df["is_tcp"] = (df["proto"] == "tcp").astype(int)
+            df["is_udp"] = (df["proto"] == "udp").astype(int)
+            df["is_icmp"] = (df["proto"] == "icmp").astype(int)
+
+            df["is_other_proto"] = (
+                (df["is_tcp"] + df["is_udp"] + df["is_icmp"]) == 0
+            ).astype(int)
+
+            df = df.drop(columns=["proto", "proto_group", "attack_cat"], errors="ignore")
+
+            logger.info("Categorical feature engineering completed.")
+            return df
+
+        except Exception as e:
+            logger.error("Error in encode_categorical()")
+            raise CustomException(e, sys)
+
+    # Step 5: IP Encoding
+    def encode_ip(self, df:pd.DataFrame) -> pd.DataFrame:
+        try:
+            logger.info("Encoding IP Addresses...")
+
+
+
+            # Encode Src ip
+            if "srcip" in df.columns:
+                src_split = (
+                    df["srcip"].fillna("0.0.0.0").str.split(".", expand=True).astype(int)
+                )
+            if src_split.shape[1] == 4:
+                    src_split = src_split.apply(pd.to_numeric, errors="coerce").fillna(-1).astype(int)
+
+                    df["srcip_network_class_identifier"] = src_split[0]
+                    df["srcip_network_portion"] = src_split[1]
+                    df["srcip_subnet_portion"] = src_split[2]
+                    df["srcip_host_portion"] = src_split[3]
+
+                    logger.info("Encoding of srcip completed successfully.")
+            else:
+                    logger.warning("srcip format invalid. Skipping srcip encoding.")
+
+            # Encode Destination IP
+            if "dstip" in df.columns:
+                dst_split = (
+                    df["dstip"]
+                    .astype(str)
+                    .str.split(".", expand=True)
+                )
+
+                if dst_split.shape[1] == 4:
+                    dst_split = dst_split.apply(pd.to_numeric, errors="coerce").fillna(-1).astype(int)
+
+                    df["dstip_network_class_identifier"] = dst_split[0]
+                    df["dstip_network_portion"] = dst_split[1]
+                    df["dstip_subnet_portion"] = dst_split[2]
+                    df["dstip_host_portion"] = dst_split[3]
+
+                    logger.info("Encoding of dstip completed successfully.")
+                else:
+                    logger.warning("dstip format invalid. Skipping dstip encoding.")
+
+            # Drop original IP columns
+            df.drop(columns=["dstip"], errors="ignore", inplace=True)
+
+            logger.info("IP categorical encoding completed successfully.")
+            return df
+
+        except Exception as e:
+            logger.exception("Error in encode_ip.")
+            raise CustomException(e, sys)
+
+
+
+
+# Full Pipeline
+    def preprocess(self, df:pd.DataFrame) -> pd.DataFrame:
+        try:
+            logger.info("Starting full preprocessing pipeline...")
+            df = self.handle_missing(df)
+            df = self.process_ports(df)
+            df = self.clean_service(df)
+            df = self.encode_categorical(df)
+            df = self.encode_ip(df)
+
+            logger.info("Preprocessing pipeline completed successfully.")
+            return df
+        except Exception as e:
+            logger.error("Error in Preprocessing pipeline. ")
+            raise CustomException(e,sys)
+    
+
+
+if __name__ == "__main__":
+    try:
+        logger.info("Starting ETL process for TrustCast dataset...")
+
+        # file_path = "D:\\AI\\TrustCast\\data\\UNSW_data.csv"
+        file_path = "D:\\AI\\TrustCast\\data\\UNSW_1.csv"
+        df = pd.read_csv(file_path)
+        logger.info(f"Dataset loaded successfully with shape {df.shape}")
+
+        data_process = DataPreprocessing()
+        df_processed = data_process.preprocess(df)
+
+        logger.info(f"Processed dataset shape: {df_processed.shape}")
+
+        # output_path = "D:\\AI\\TrustCast\\data\\UNSW_combined_processed.csv"
+        output_path = "D:\\AI\\TrustCast\\data\\UNSW_processed_new.csv"
+        df_processed.to_csv(output_path, index=False)
+
+        logger.info(f"Processed dataset saved at {output_path}")
+
+    except Exception as e:
+        logger.error("ETL process failed.")
+        raise CustomException(e, sys)
 
 # def understanding_Data(data: pd.DataFrame):
 #     try:
@@ -710,3 +985,10 @@ if __name__ == "__main__":
 #     except Exception as e:
 #         logger.error("ETL process failed.")
 #         raise CustomException(e, sys)
+=======
+import pandas as pd # type: ignore
+from src.exception.exception_handle import CustomException
+from src.logger.logging_handle import logger
+import sys
+
+>>>>>>> ceb97c06e6ca5e3b8ea121ed2933215a1ce4636f
